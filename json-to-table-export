@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Convert JSON Array to Table and Export to Excel </title>
+</head>
+<body>
+
+    <div>
+        <textarea id="inputjson" rows="6" width="100%"></textarea>
+    </div>
+    <p>
+        <input type="button" value="Convert" onclick="convertjson()" />
+        <input type="button" value="Export to Excel" onclick="exporttoexcel()" />
+    </p>
+    <div>
+        <table id="ResultTable" border="1"></table>
+    </div>
+
+
+    <script>
+
+        function convertjson() {
+
+            var inputjson = document.getElementById('inputjson').value;
+            var inputarr = JSON.parse(inputjson);
+            var outputarr = [];
+            if (inputarr && inputarr.length) {
+                inputarr.forEach(function (obj) {
+                    arr = [];
+                    var objRow = objtoarr(obj, "");
+                    outputarr.push(objRow);
+                });
+            }
+
+            var table = document.getElementById('ResultTable');
+            var row = {}, cell = {};
+
+            var rowh = table.insertRow(-1);
+            columns.forEach(function (columnname) {
+                cell = rowh.insertCell();
+                cell.textContent = columnname;
+            });
+            outputarr.forEach(function (rowData) {
+                row = table.insertRow(-1); 
+                columns.forEach(function (columnname) {
+                    cell = row.insertCell();
+                    cell.textContent = rowData[columnname];
+                });
+            });
+        }
+
+        var arr = {}, columns = [];
+        function objtoarr(obj, defaultkey) {
+            Object.keys(obj).forEach(function (key) {
+                var val = obj[key];
+                if (typeof (val) == "object") {
+                    objtoarr(val, key);
+                } else {
+                    var comkey = "";
+                    comkey = defaultkey ? defaultkey + "__" + key : key;
+                    arr[comkey] = obj[key];
+                    if (columns.indexOf(comkey) < 0) {
+                        columns.push(comkey);
+                    }
+                }
+            });
+            return arr;
+        }
+
+        function exporttoexcel() {
+            var htmltable = document.getElementById('ResultTable');
+            var html = htmltable.outerHTML;
+            window.open('data:application/vnd.ms-excel,' + encodeURIComponent(html));
+        }
+    </script>
+
+</body>
+</html>
